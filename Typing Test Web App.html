@@ -148,13 +148,17 @@
     }
 
     #input-capture {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      opacity: 0;
-      z-index: 0;
-      height: 1px;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 1px;
+      height: 1px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: transparent;
+      caret-color: transparent;
+      z-index: 999;
     }
 
     #result {
@@ -204,7 +208,6 @@
 <body class="light">
   <div class="container">
     <h2>Typing Speed Test</h2>
-
     <div class="time-buttons" id="time-buttons">
       <button data-time="15">15</button>
       <button data-time="30">30</button>
@@ -213,12 +216,10 @@
       <button data-time="300">300</button>
       <button data-time="600">600</button>
     </div>
-
     <div id="timer">Time: 60s</div>
     <div class="typing-box" id="typingBox"></div>
     <input type="text" id="input-capture" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div id="result"></div>
-
     <div class="controls">
       <button class="control-btn" onclick="startTest()">Restart</button>
       <button class="control-btn" id="theme-toggle">🌙 Toggle Dark Mode</button>
@@ -349,8 +350,14 @@
       });
     });
 
+    // Focus input on body or box tap (mobile support)
     document.body.addEventListener("click", () => inputCapture.focus());
     document.getElementById("typingBox").addEventListener("click", () => inputCapture.focus());
+
+    // Re-focus input if blurred (mobile auto-focus)
+    inputCapture.addEventListener("blur", () => {
+      setTimeout(() => inputCapture.focus(), 100);
+    });
 
     window.onload = startTest;
   </script>
