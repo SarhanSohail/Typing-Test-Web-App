@@ -148,17 +148,19 @@
     }
 
     #input-capture {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 1px;
-      border: none;
-      outline: none;
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 400px;
+      height: 40px;
+      opacity: 0.001;
       background: transparent;
       color: transparent;
-      caret-color: transparent;
+      caret-color: black;
       z-index: 999;
+      border: none;
     }
 
     #result {
@@ -350,11 +352,9 @@
       });
     });
 
-    // Focus input on body or box tap (mobile support)
     document.body.addEventListener("click", () => inputCapture.focus());
     document.getElementById("typingBox").addEventListener("click", () => inputCapture.focus());
 
-    // Re-focus input if blurred (mobile auto-focus)
     inputCapture.addEventListener("blur", () => {
       setTimeout(() => inputCapture.focus(), 100);
     });
