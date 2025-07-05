@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Typing Speed Test</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 50px 20px;
+      min-height: 100vh;
+      transition: background 0.3s ease;
+    }
+
+    body.light {
+      background: #fff9f0;
+      color: #000;
+    }
+
+    body.dark {
+      background: #121212;
+      color: #eee;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 960px;
+      transition: background 0.3s ease;
+    }
+
+    body.dark .container {
+      background: #1e1e1e;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .time-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    body.dark .time-buttons {
+      background-color: #2c2c2c;
+    }
+
+    .time-buttons button {
+      background: transparent;
+      color: #333;
+      border: none;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .time-buttons button:hover {
+      background: #dcdcdc;
+    }
+
+    .time-buttons button.active {
+      color: #d35400;
+    }
+
+    body.dark .time-buttons button {
+      color: #ccc;
+    }
+
+    body.dark .time-buttons button.active {
+      color: #ffc107;
+    }
+
+    #timer {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #e67e22;
+      margin-bottom: 25px;
+    }
+
+    .typing-box {
+      text-align: justify;
+      font-size: 24px;
+      line-height: 1.8;
+      padding: 25px;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      min-height: 200px;
+      background: #fdfdfd;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    body.dark .typing-box {
+      background: #2b2b2b;
+      border-color: #555;
+    }
+
+    .char {
+      display: inline;
+      font-weight: bold;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .incorrect {
+      color: red;
+    }
+
+    .current {
+      border-left: 2px solid black;
+      animation: blink 1s step-end infinite;
+    }
+
+    body.dark .current {
+      border-left: 2px solid #eee;
+    }
+
+    @keyframes blink {
+      0%, 100% { border-color: transparent; }
+      50% { border-color: black; }
+    }
+
+    #input-capture {
+      position: absolute;
+      opacity: 0;
+    }
+
+    #result {
+      font-size: 20px;
+      margin-top: 25px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    button.control-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #3498db;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      margin: 10px 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button.control-btn:hover {
+      background-color: #2980b9;
+    }
+
+    #theme-toggle {
+      background-color: #f39c12;
+    }
+
+    body.dark #theme-toggle {
+      background-color: #8e44ad;
+    }
+
+    @media (max-width: 600px) {
+      .typing-box {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+  <div class="container">
+    <h2>Typing Speed Test</h2>
+
+    <div class="time-buttons" id="time-buttons">
+      <button data-time="15">15</button>
+      <button data-time="30">30</button>
+      <button data-time="60" class="active">60</button>
+      <button data-time="120">120</button>
+      <button data-time="300">300</button>
+      <button data-time="600">600</button>
+    </div>
+
+    <div id="timer">Time: 60s</div>
+    <div class="typing-box" id="typingBox"></div>
+    <input type="text" id="input-capture" autofocus />
+    <div id="result"></div>
+
+    <div class="controls">
+      <button class="control-btn" onclick="startTest()">Restart</button>
+      <button class="control-btn" id="theme-toggle">🌙 Toggle Dark Mode</button>
+    </div>
+  </div>
+
+  <script>
+    const wordBank = `about right face by when word get must head well last early while down know very after through some move even tell during little may develop up other should home old course as make look world their way many new day give high eye people around could big different same again small great next help much change time fast slow walk light sound place real keep mind without more want`.split(" ");
+
+    const typingBox = document.getElementById("typingBox");
+    const inputCapture = document.getElementById("input-capture");
+    const timerDisplay = document.getElementById("timer");
+    const resultDisplay = document.getElementById("result");
+    const themeToggle = document.getElementById("theme-toggle");
+
+    let charElements = [];
+    let totalChars = 0;
+    let currentIndex = 0;
+    let correctCount = 0;
+    let started = false;
+    let timeLeft = 60;
+    let selectedTime = 60;
+    let interval;
+
+    function generateText(count = 50) {
+      let words = [];
+      for (let i = 0; i < count; i++) {
+        words.push(wordBank[Math.floor(Math.random() * wordBank.length)]);
+      }
+      return words.join(" ");
+    }
+
+    function renderText(text) {
+      typingBox.innerHTML = '';
+      charElements = [];
+      for (let i = 0; i < text.length; i++) {
+        const span = document.createElement("span");
+        span.innerText = text[i];
+        span.classList.add("char");
+        if (i === 0) span.classList.add("current");
+        typingBox.appendChild(span);
+        charElements.push(span);
+      }
+      totalChars = text.length;
+    }
+
+    function startTimer() {
+      if (started) return;
+      started = true;
+      interval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = `Time: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          inputCapture.disabled = true;
+          showResult();
+        }
+      }, 1000);
+    }
+
+    function showResult() {
+      const wpm = Math.round((correctCount / 5) / (selectedTime / 60));
+      const accuracy = Math.min(100, Math.round((correctCount / currentIndex) * 100)) || 0;
+      resultDisplay.innerText = `✅ WPM: ${wpm} | 🎯 Accuracy: ${accuracy}%`;
+    }
+
+    inputCapture.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace") {
+        if (currentIndex > 0) {
+          charElements[currentIndex].classList.remove("current");
+          currentIndex--;
+          charElements[currentIndex].classList.remove("correct", "incorrect");
+          charElements[currentIndex].classList.add("current");
+        }
+        e.preventDefault();
+        return;
+      }
+
+      if (e.key.length !== 1 || currentIndex >= charElements.length) return;
+
+      startTimer();
+
+      const expected = charElements[currentIndex].innerText;
+      if (e.key === expected) {
+        charElements[currentIndex].classList.add("correct");
+        correctCount++;
+      } else {
+        charElements[currentIndex].classList.add("incorrect");
+      }
+
+      charElements[currentIndex].classList.remove("current");
+      currentIndex++;
+      if (currentIndex < charElements.length) {
+        charElements[currentIndex].classList.add("current");
+      }
+
+      e.preventDefault();
+    });
+
+    function startTest() {
+      clearInterval(interval);
+      currentIndex = 0;
+      correctCount = 0;
+      started = false;
+      resultDisplay.innerText = "";
+      inputCapture.value = "";
+      inputCapture.disabled = false;
+      inputCapture.focus();
+
+      timeLeft = selectedTime;
+      timerDisplay.innerText = `Time: ${timeLeft}s`;
+
+      const text = generateText();
+      renderText(text);
+    }
+
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+    });
+
+    document.querySelectorAll('#time-buttons button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('#time-buttons button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        selectedTime = parseInt(button.getAttribute('data-time'));
+        startTest();
+      });
+    });
+
+    document.body.addEventListener("click", () => inputCapture.focus());
+    window.onload = startTest;
+  </script>
+</body>
+</html>
