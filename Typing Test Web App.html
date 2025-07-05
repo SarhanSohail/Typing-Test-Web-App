@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Typing Speed Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
       box-sizing: border-box;
@@ -148,7 +149,12 @@
 
     #input-capture {
       position: absolute;
+      top: 10px;
+      left: 10px;
       opacity: 0;
+      z-index: 0;
+      height: 1px;
+      width: 1px;
     }
 
     #result {
@@ -210,7 +216,7 @@
 
     <div id="timer">Time: 60s</div>
     <div class="typing-box" id="typingBox"></div>
-    <input type="text" id="input-capture" autofocus />
+    <input type="text" id="input-capture" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div id="result"></div>
 
     <div class="controls">
@@ -344,6 +350,8 @@
     });
 
     document.body.addEventListener("click", () => inputCapture.focus());
+    document.getElementById("typingBox").addEventListener("click", () => inputCapture.focus());
+
     window.onload = startTest;
   </script>
 </body>
